@@ -1,6 +1,8 @@
 'use strict';
 
-const client = require('../lib').create();
+// process.env.OURNET_API_HOST = 'localhost:41702';
+
+const client = require('../lib').create({ cache: { places_place: { ttl: 1000 * 60 * 1, max: 100 } } });
 const assert = require('assert');
 
 describe('client', function() {
@@ -15,6 +17,34 @@ describe('client', function() {
 			.then(result => {
 				assert.ok(result.place);
 				assert.equal(685948, result.place.id);
+			});
+	});
+
+	it('should get geo place from cache', function() {
+		return client.query({
+				place: {
+					name: 'places_place',
+					query: '(id:$placeId){id name}',
+					variables: { placeId: 685948 }
+				}
+			})
+			.then(result => {
+				assert.ok(result.place);
+				assert.equal(685948, result.place.id);
+			});
+	});
+
+	it('should NOT put to cache', function() {
+		return client.query({
+				place: {
+					name: 'places_place',
+					query: '(id:$placeId){id name}',
+					variables: { placeId: 99999999 },
+					required: false
+				}
+			})
+			.then(result => {
+				assert.equal(null, result.place);
 			});
 	});
 
