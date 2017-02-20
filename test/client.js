@@ -62,4 +62,19 @@ describe('client', function() {
 				assert.equal(685948, result.place.id);
 			});
 	});
+
+	it('should mutate storyView', function() {
+		return client.mutate({
+				story: {
+					name: 'stories_viewStory',
+					query: '(id:$id){id countViews}',
+					variables: { id: 364496 }
+				}
+			})
+			.then(result => {
+				// console.log(result);
+				assert.ok(result.story);
+				assert.equal(364496, result.story.id);
+			});
+	});
 });
